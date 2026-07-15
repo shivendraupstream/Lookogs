@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # 1. The Database Layer
+  postgres:
+    image: postgres:16-alpine
+    container_name: lookogs_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+
+  # 2. The Ingestion & Query API (Backend)
+  
+
+  # 3. The Log Viewer Dashboard (Frontend)
+  
+
+#The inbuilt redis service is used for caching and pub/sub features in the backend. It is not strictly necessary for the basic functionality of Lookogs, but it can improve performance and enable additional features.
+  redis:
+    image: redis:7-alpine
+    container_name: lookogs_redis
+    restart: unless-stopped
+
+    ports:
+      - "${REDIS_PORT}:6379"
+
+    volumes:
+      - redis_data:/data
+ 
+    
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: lookogs_pgadmin
+
+    restart: unless-stopped
+
+    ports:
+      - "5050:80"
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+
+    depends_on:
+      - postgres   
+ 
+  
+  
+
+volumes:
+  pgdata:
+  redis_data:
+
