@@ -1,7 +1,8 @@
-import type { Log, Severity } from '../generated/prisma/index.js';
+import { prisma } from '../lib/prisma.js';
+type Log = NonNullable<Awaited<ReturnType<typeof prisma.log.findFirst>>>;
 export type ParsedLog = {
     message: string;
-    severity: Severity;
+    severity: Log['severity'] | string;
     eventTime: Date;
     attributes: any;
 };
@@ -12,7 +13,7 @@ export interface CreateLogsInput {
 }
 export interface FindLogsQuery {
     appId: string;
-    severity?: Severity;
+    severity?: string;
     sourceId?: string;
     search?: string;
     startTime?: Date;
@@ -36,4 +37,5 @@ export declare class LogRepository {
     findMany(query: FindLogsQuery): Promise<Log[]>;
     findById(appId: string, id: string): Promise<Log | null>;
 }
+export {};
 //# sourceMappingURL=log.repositories.d.ts.map

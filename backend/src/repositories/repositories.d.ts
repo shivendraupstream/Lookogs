@@ -1,3 +1,4 @@
+export { LogRepository, type CreateLogsInput, type FindLogsQuery, type ParsedLog } from "./log.repositories.js";
 export declare class AppRepository {
     create(data: {
         name: string;

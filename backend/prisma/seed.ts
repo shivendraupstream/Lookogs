@@ -1,10 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { PrismaClient, Severity } from "../src/generated/prisma/index.ts";
+import { PrismaClient, Severity } from "../src/generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import crypto from "crypto";
 
-const prisma = new PrismaClient({ adapter: new PrismaPg(process.env.DATABASE_URL) });
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+const prisma = new PrismaClient({ adapter: new PrismaPg(databaseUrl) });
 
 const messages = [
   { severity: Severity.INFO, message: "Server started successfully" },
@@ -20,7 +25,14 @@ const messages = [
 ];
 
 function randomItem<T>(items: T[]): T {
-  return items[Math.floor(Math.random() * items.length)];
+  const index = Math.floor(Math.random() * items.length);
+  const item = items[index];
+
+  if (item === undefined) {
+    throw new Error("Cannot select a random item from an empty array");
+  }
+
+  return item;
 }
 
 async function main() {

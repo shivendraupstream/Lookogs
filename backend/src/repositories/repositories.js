@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+export { LogRepository } from "./log.repositories.js";
 export class AppRepository {
     async create(data) {
         return prisma.app.create({

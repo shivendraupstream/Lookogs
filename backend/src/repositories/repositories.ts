@@ -1,5 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 
+export { LogRepository, type CreateLogsInput, type FindLogsQuery, type ParsedLog } from "./log.repositories.js";
+
 export class AppRepository {
   async create(data: {
     name: string;

@@ -12,6 +12,7 @@ export class LogRepository {
             appId,
             sourceId,
             message: log.message,
+            // cast severity to the Prisma enum type if it's a string
             severity: log.severity,
             eventTime: log.eventTime,
             ingestTime,
@@ -55,7 +56,7 @@ export class LogRepository {
                 },
             ];
         }
-        return this.prisma.log.findMany({
+        const logs = await this.prisma.log.findMany({
             where,
             orderBy: [
                 { eventTime: 'desc' },
@@ -63,6 +64,7 @@ export class LogRepository {
             ],
             take: limit,
         });
+        return logs;
     }
     async findById(appId, id) {
         return this.prisma.log.findFirst({

@@ -1,12 +1,14 @@
-import type { Log, Severity } from '../generated/prisma/index.js';
 import { prisma } from '../lib/prisma.js';
+
+type Log = NonNullable<Awaited<ReturnType<typeof prisma.log.findFirst>>>;
 
 // Minimal parsed-log shape used by the repository. The parser module
 // wasn't present at this path in the workspace, so define the shape here
 // to keep the repository self-contained.
 export type ParsedLog = {
   message: string;
-  severity: Severity;
+  // Use the repository Log severity type to stay in sync with the Prisma model
+  severity: Log['severity'] | string;
   eventTime: Date;
   attributes: any;
 };
@@ -19,7 +21,7 @@ export interface CreateLogsInput {
 
 export interface FindLogsQuery {
   appId: string;
-  severity?: Severity;
+  severity?: string;
   sourceId?: string;
   search?: string;
   startTime?: Date;
@@ -47,7 +49,8 @@ export class LogRepository {
       appId,
       sourceId,
       message: log.message,
-      severity: log.severity,
+      // cast severity to the Prisma enum type if it's a string
+      severity: log.severity as Log['severity'],
       eventTime: log.eventTime,
       ingestTime,
       attributes: log.attributes,
@@ -95,7 +98,7 @@ export class LogRepository {
       ];
     }
 
-    return this.prisma.log.findMany({
+    const logs = await this.prisma.log.findMany({
       where,
       orderBy: [
         { eventTime: 'desc' },
@@ -103,6 +106,8 @@ export class LogRepository {
       ],
       take: limit,
     });
+
+    return logs;
   }
 
   async findById(appId: string, id: string): Promise<Log | null> {
