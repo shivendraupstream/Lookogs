@@ -29,4 +29,40 @@ export class AppRepository {
         });
     }
 }
+export class SourceRepository {
+    async create(data) {
+        return prisma.source.create({
+            data,
+        });
+    }
+    async findAllByApp(appId) {
+        return prisma.source.findMany({
+            where: { appId },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+    }
+    async findById(id) {
+        return prisma.source.findUnique({
+            where: { id },
+        });
+    }
+    async findByApiKeyHash(apiKeyHash) {
+        return prisma.source.findUnique({
+            where: { apiKeyHash },
+        });
+    }
+    async update(id, data) {
+        return prisma.source.update({
+            where: { id },
+            data,
+        });
+    }
+    async delete(id) {
+        return prisma.source.delete({
+            where: { id },
+        });
+    }
+}
 //# sourceMappingURL=repositories.js.map

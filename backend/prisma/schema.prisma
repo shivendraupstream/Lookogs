@@ -86,6 +86,8 @@ model Log {
   @@index([appId])
   @@index([eventTime])
 
+  @@index([appId, eventTime, id])
+
   @@map("logs")
 }
 
