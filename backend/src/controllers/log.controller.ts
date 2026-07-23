@@ -6,6 +6,42 @@ import { Severity } from "../generated/prisma/enums.js";
 const logService = new LogService();
 
 export class LogController {
+    async getLogbyId(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ) {
+        const { id } = request.params as {
+            id: string;
+        };
+
+        const { appId } = request.query as {
+            appId?: string;
+        };
+
+        if (!appId) {
+            return reply.code(400).send({
+            error: "appId is required",
+            });
+        }
+
+        try {
+            const log = await logService.getLogbyId(appId, id);
+
+            if (!log) {
+            return reply.code(404).send({
+                error: "Log not found",
+            });
+            }
+
+            return reply.code(200).send(log);
+
+        } catch (error) {
+            return reply.code(500).send({
+            error: "Failed to retrieve log",
+            });
+        }
+    };
+
   async getLogs(
     request: FastifyRequest,
     reply: FastifyReply
@@ -102,12 +138,14 @@ export class LogController {
         };
     }
 
+    
+
     try {
       const logs = await logService.getLogs(query);
 
       const lastLog = logs.at(-1);
 
-    const nextCursor = lastLog
+      const nextCursor = lastLog
         ? {
             id: lastLog.id,
             eventTime: lastLog.eventTime,

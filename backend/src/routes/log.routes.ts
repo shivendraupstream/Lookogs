@@ -8,4 +8,8 @@ export async function logRoutes(fastify: FastifyInstance) {
     "/api/v1/logs",
     logController.getLogs.bind(logController)
   );
+  fastify.get(
+  "/api/v1/logs/:id",
+  logController.getLogbyId.bind(logController)
+);
 }
