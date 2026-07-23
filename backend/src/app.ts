@@ -5,6 +5,7 @@ import { appRoutes } from "./routes/app.routes.js";
 import { sourceRoutes } from "./routes/source.routes.js";
 import { ingestRoutes } from "./routes/ingest.routes.js";
 import { logRoutes } from "./routes/log.routes.js";
+import { errorHandler } from "./plugins/error-handler.js";    
 
 export const app = Fastify({
   logger: true,
@@ -16,6 +17,8 @@ await app.register(appRoutes);
 await app.register(sourceRoutes);
 await app.register(ingestRoutes);
 await app.register(logRoutes);
+
+await errorHandler(app);
 
 app.get("/health", async () => {
   return {

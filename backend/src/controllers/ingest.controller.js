@@ -12,20 +12,9 @@ export class IngestController {
             });
         }
         const { logs } = request.body;
-        try {
             const result = await ingestService.ingest(apiKey, logs);
             return reply.code(200).send(result);
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                return reply.code(400).send({
-                    error: error.message,
-                });
-            }
-            return reply.code(500).send({
-                error: "Internal Server Error",
-            });
-        }
+        
     }
 }
 //# sourceMappingURL=ingest.controller.js.map

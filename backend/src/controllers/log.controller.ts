@@ -46,6 +46,7 @@ export class LogController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
+
     const { 
         appId,
         severity,
@@ -148,7 +149,7 @@ export class LogController {
       const nextCursor = lastLog
         ? {
             id: lastLog.id,
-            eventTime: lastLog.eventTime,
+            eventTime: lastLog.timestamp,
             }
         : null;
 

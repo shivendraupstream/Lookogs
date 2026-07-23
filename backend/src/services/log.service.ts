@@ -14,8 +14,8 @@ export class LogService {
   async getLogbyId(appId: string, Id: string) {
     const log = await this.logRepository.findById(appId, Id);
 
-    if (!log){
-        return null;
+    if (!log) {
+      return null;
     }
     return toLogDto(log);
   }
