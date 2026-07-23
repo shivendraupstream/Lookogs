@@ -87,7 +87,7 @@ export class LogRepository {
       if (endTime) where.eventTime.lte = endTime;
     }
 
-    // Cursor pagination logic (eventTime DESC, id DESC)
+    // Cursor pagination logic ( eventTime DESC, id DESC)
     if (cursor) {
       where.OR = [
         { eventTime: { lt: cursor.eventTime } },

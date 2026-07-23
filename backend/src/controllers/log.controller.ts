@@ -1,0 +1,124 @@
+import { type FastifyReply, type FastifyRequest } from "fastify";
+import { LogService } from "../services/log.service.js";
+import type { FindLogsQuery } from "../repositories/log.repositories.js";
+import { Severity } from "../generated/prisma/enums.js";
+
+const logService = new LogService();
+
+export class LogController {
+  async getLogs(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const { 
+        appId,
+        severity,
+        sourceId,   
+        search,
+        startTime,
+        endTime, 
+        limit,
+        cursorId,
+        cursorTime,
+     } = request.query as {
+      appId?: string;
+      severity?: Severity;
+      sourceId?: string;
+      search?: string;
+      startTime?: string;
+      endTime?: string;
+      limit?: number;
+      cursorId?: string;
+      cursorTime?: string;
+    };
+
+    if (
+        severity && !Object.values(Severity).includes(severity)
+    ){
+        return reply.code(400).send({
+            error: "Invalid severity value",
+        });
+    }
+
+    if (!appId) {
+      return reply.code(400).send({
+        error: "appId is required",
+      });
+    }
+
+    if (limit) {
+        const parsedLimit = Number(limit);
+
+        if (Number.isNaN(parsedLimit) || parsedLimit <= 0 || parsedLimit > 100) {
+            return reply.code(400).send({
+            error: "limit must be between 1 and 100",
+            });
+        }
+    }
+
+    if (startTime && Number.isNaN(new Date(startTime).getTime())) {
+        return reply.code(400).send({
+            error: "Invalid startTime",
+        });
+        }
+
+        if (endTime && Number.isNaN(new Date(endTime).getTime())) {
+        return reply.code(400).send({
+            error: "Invalid endTime",
+        });
+    }
+
+    const query: FindLogsQuery = {
+        appId,
+        };
+
+        if (severity) {
+            query.severity = severity;
+            }
+
+        if (sourceId) {
+            query.sourceId = sourceId;
+            }
+
+        if (search) {
+            query.search = search;
+            }
+
+        if (startTime) {
+            query.startTime = new Date(startTime);
+            }
+
+        if (endTime) {
+            query.endTime = new Date(endTime);
+            }
+
+        if (limit) {
+            query.limit = Number(limit);
+        }
+        if (cursorId && cursorTime) {
+            query.cursor = {
+            id: cursorId,
+            eventTime: new Date(cursorTime),
+        };
+    }
+
+    try {
+      const logs = await logService.getLogs(query);
+
+      const lastLog = logs.at(-1);
+
+    const nextCursor = lastLog
+        ? {
+            id: lastLog.id,
+            eventTime: lastLog.eventTime,
+            }
+        : null;
+
+      return reply.code(200).send({logs, nextCursor});
+    } catch (error) {
+      return reply.code(500).send({
+        error: "Failed to retrieve logs",
+      });
+    }
+  }
+}
